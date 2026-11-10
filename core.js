@@ -133,7 +133,58 @@
     return (m / 1000).toFixed(m < 10000 ? 2 : 1).replace('.', ',') + ' km';
   }
 
-  const api = { dist, bearing, angDiff, buildRoute, project, nextTurn, fmtDist, TEXT, ARROW };
+  // Distância (m) de p ao segmento a-b, em coordenadas planas locais.
+  function distToSeg(a, b, p) {
+    const m = R * D, k = Math.cos(p.lat * D) * m;
+    const ax = (a.lon - p.lon) * k, ay = (a.lat - p.lat) * m;
+    const bx = (b.lon - p.lon) * k, by = (b.lat - p.lat) * m;
+    const dx = bx - ax, dy = by - ay, l2 = dx * dx + dy * dy;
+    let t = l2 ? (-ax * dx - ay * dy) / l2 : 0;
+    t = Math.max(0, Math.min(1, t));
+    return Math.hypot(ax + t * dx, ay + t * dy);
+  }
+
+  // Escolhe até n pontos intermédios que preservam a forma do percurso (a partir de fromAlong).
+  function pickWaypoints(route, n, fromAlong) {
+    const pts = route.pts;
+    if (pts.length < 2) return [];
+    let s = 0;
+    if (fromAlong > 0) while (s < pts.length - 1 && route.cum[s] < fromAlong) s++;
+    const e = pts.length - 1;
+    if (s >= e) return [pts[e]];
+    const sel = [s, e];
+    while (sel.length < n + 2) {
+      let bestI = -1, bestD = 0;
+      for (let k = 0; k < sel.length - 1; k++) {
+        for (let i = sel[k] + 1; i < sel[k + 1]; i++) {
+          const d = distToSeg(pts[sel[k]], pts[sel[k + 1]], pts[i]);
+          if (d > bestD) { bestD = d; bestI = i; }
+        }
+      }
+      if (bestI < 0 || bestD < 15) break;
+      sel.push(bestI);
+      sel.sort((x, y) => x - y);
+    }
+    return sel.map((i) => pts[i]);
+  }
+
+  // URL de direções do Google Maps (máx. 9 pontos de passagem).
+  function mapsUrl(route, mode, fromAlong, fromHere) {
+    const pts = pickWaypoints(route, fromHere ? 8 : 9, fromAlong);
+    if (!pts.length) return null;
+    const f = (p) => p.lat.toFixed(6) + ',' + p.lon.toFixed(6);
+    const dest = pts[pts.length - 1];
+    let origin = null, via;
+    if (fromHere) via = pts.slice(0, -1);
+    else { origin = pts[0]; via = pts.slice(1, -1); }
+    let u = 'https://www.google.com/maps/dir/?api=1&destination=' + f(dest);
+    if (origin) u += '&origin=' + f(origin);
+    if (via.length) u += '&waypoints=' + encodeURIComponent(via.map(f).join('|'));
+    u += '&travelmode=' + (mode || 'driving') + '&dir_action=navigate';
+    return u;
+  }
+
+  const api = { dist, bearing, angDiff, buildRoute, project, nextTurn, fmtDist, pickWaypoints, mapsUrl, TEXT, ARROW };
   if (typeof module !== 'undefined' && module.exports) module.exports = api;
   else root.NavCore = api;
 })(typeof self !== 'undefined' ? self : this);

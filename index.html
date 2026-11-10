@@ -33,9 +33,10 @@
   button.on{background:#16a34a}
   button:disabled{opacity:.4}
   input[type=file]{display:none}
+  select{flex:1;border:0;border-radius:10px;padding:11px 4px;font-size:14px;background:#1e293b;color:#f8fafc}
   .user{width:22px;height:22px;border-radius:50%;background:#2563eb;border:3px solid #fff;box-shadow:0 0 0 2px #2563eb55}
   .user.arrow{border-radius:4px 50% 50% 50%}
-  #recenter{position:absolute;z-index:1000;right:12px;bottom:calc(190px + env(safe-area-inset-bottom));
+  #recenter{position:absolute;z-index:1000;right:12px;bottom:calc(240px + env(safe-area-inset-bottom));
     width:46px;height:46px;border-radius:50%;background:#0f172a;color:#fff;font-size:22px;display:none;
     box-shadow:0 2px 8px #0008;flex:none;padding:0}
 </style>
@@ -63,6 +64,10 @@
     <button id="go" disabled>Iniciar</button>
     <button id="voice" class="on">🔊 Voz</button>
     <button id="sim" disabled>Simular</button>
+  </div>
+  <div class="btns" style="margin-top:6px">
+    <select id="mode"><option value="driving">🚗 Carro</option><option value="bicycling">🚴 Bicicleta</option><option value="walking">🚶 A pé</option></select>
+    <button id="gmaps" disabled class="primary" style="flex:2">Navegar no Google Maps</button>
   </div>
 </div>
 

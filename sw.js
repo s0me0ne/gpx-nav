@@ -1,4 +1,4 @@
-const SHELL = 'shell-v1', RUNTIME = 'runtime-v1';
+const SHELL = 'shell-v2', RUNTIME = 'runtime-v1';
 const FILES = ['./', 'index.html', 'app.js', 'core.js', 'manifest.json', 'icon.svg'];
 
 self.addEventListener('install', (e) => {
@@ -16,7 +16,7 @@ self.addEventListener('fetch', (e) => {
   const url = new URL(req.url);
   const isRuntime = url.host.endsWith('openstreetmap.org') || url.host === 'unpkg.com';
   if (url.origin === location.origin) {
-    e.respondWith(caches.match(req).then((r) => r || fetch(req)));
+    e.respondWith(fetch(req).then((res) => { const cp = res.clone(); caches.open(SHELL).then((c) => c.put(req, cp)); return res; }).catch(() => caches.match(req)));
   } else if (isRuntime) {
     e.respondWith(caches.open(RUNTIME).then(async (c) => {
       const hit = await c.match(req);

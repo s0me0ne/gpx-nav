@@ -70,7 +70,7 @@
     map.fitBounds(routeLine.getBounds(), { padding: [60, 60] });
 
     hint = null; lastAlong = 0; announced = new Set(); offCount = 0; offActive = false;
-    $('go').disabled = false; $('sim').disabled = false;
+    $('go').disabled = false; $('sim').disabled = false; $('gmaps').disabled = false;
     $('arrow').textContent = '⬆';
     $('instr').textContent = routeName || 'Percurso carregado';
     $('sub').textContent = C.fmtDist(route.total) + ' · ' + (route.turns.length - 1) + ' curvas';
@@ -251,6 +251,15 @@
     }, 1000);
   }
   $('sim').onclick = () => (simTimer ? stop() : simulate());
+
+  // ---------- Google Maps ----------
+  // O Google Maps recalcula a rota por estradas entre os pontos; não segue o traço GPX ao metro.
+  $('gmaps').onclick = () => {
+    if (!route) return;
+    const here = !!(running && lastFix); // a navegar: parte da posição atual e só os pontos à frente
+    const url = C.mapsUrl(route, $('mode').value, here ? lastAlong : 0, here);
+    if (url) window.open(url, '_blank');
+  };
 
   // ---------- Seguir / centrar ----------
   map.on('dragstart', () => { follow = false; $('recenter').style.display = 'block'; });
