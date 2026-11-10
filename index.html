@@ -1,0 +1,73 @@
+<!DOCTYPE html>
+<html lang="pt-PT">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, viewport-fit=cover">
+<meta name="theme-color" content="#0f172a">
+<link rel="manifest" href="manifest.json">
+<link rel="icon" href="icon.svg">
+<title>Navegação GPX</title>
+<link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css">
+<style>
+  *{box-sizing:border-box;-webkit-tap-highlight-color:transparent}
+  html,body{margin:0;height:100%;font-family:system-ui,-apple-system,Segoe UI,Roboto,sans-serif;background:#0f172a;color:#f8fafc;overflow:hidden}
+  #map{position:absolute;inset:0}
+  .top{position:absolute;z-index:1000;left:8px;right:8px;top:calc(8px + env(safe-area-inset-top));
+    background:#0f172ae6;border-radius:14px;padding:10px 14px;display:flex;gap:12px;align-items:center;
+    box-shadow:0 4px 16px #0006;min-height:64px}
+  .top.alert{background:#b91c1ce6}
+  #arrow{font-size:40px;line-height:1;width:48px;text-align:center}
+  #instr{font-size:18px;font-weight:600;line-height:1.2}
+  #sub{font-size:13px;opacity:.75;margin-top:2px}
+  .bottom{position:absolute;z-index:1000;left:8px;right:8px;bottom:calc(8px + env(safe-area-inset-bottom));
+    background:#0f172af2;border-radius:16px;padding:12px;box-shadow:0 -4px 16px #0006}
+  .stats{display:grid;grid-template-columns:repeat(4,1fr);gap:6px;text-align:center;margin-bottom:10px}
+  .stats b{display:block;font-size:19px}
+  .stats span{font-size:11px;opacity:.65;text-transform:uppercase;letter-spacing:.04em}
+  .bar{height:5px;background:#334155;border-radius:3px;overflow:hidden;margin-bottom:10px}
+  .bar i{display:block;height:100%;width:0;background:#22c55e;transition:width .4s}
+  .btns{display:flex;gap:6px}
+  button,label.btn{flex:1;border:0;border-radius:10px;padding:11px 4px;font-size:14px;font-weight:600;
+    background:#1e293b;color:#f8fafc;text-align:center;cursor:pointer}
+  button.primary,label.primary{background:#2563eb}
+  button.on{background:#16a34a}
+  button:disabled{opacity:.4}
+  input[type=file]{display:none}
+  .user{width:22px;height:22px;border-radius:50%;background:#2563eb;border:3px solid #fff;box-shadow:0 0 0 2px #2563eb55}
+  .user.arrow{border-radius:4px 50% 50% 50%}
+  #recenter{position:absolute;z-index:1000;right:12px;bottom:calc(190px + env(safe-area-inset-bottom));
+    width:46px;height:46px;border-radius:50%;background:#0f172a;color:#fff;font-size:22px;display:none;
+    box-shadow:0 2px 8px #0008;flex:none;padding:0}
+</style>
+</head>
+<body>
+<div id="map"></div>
+
+<div class="top" id="top">
+  <div id="arrow">⬆</div>
+  <div><div id="instr">Carregue um ficheiro GPX</div><div id="sub">Toque em "Abrir GPX" para começar</div></div>
+</div>
+
+<button id="recenter" title="Centrar">◎</button>
+
+<div class="bottom">
+  <div class="stats">
+    <div><b id="sRem">–</b><span>Restante</span></div>
+    <div><b id="sEta">–</b><span>Chegada</span></div>
+    <div><b id="sSpd">–</b><span>km/h</span></div>
+    <div><b id="sOff">–</b><span>Do traço</span></div>
+  </div>
+  <div class="bar"><i id="bar"></i></div>
+  <div class="btns">
+    <label class="btn primary">Abrir GPX<input type="file" id="file" accept=".gpx,application/gpx+xml,application/xml,text/xml,*/*"></label>
+    <button id="go" disabled>Iniciar</button>
+    <button id="voice" class="on">🔊 Voz</button>
+    <button id="sim" disabled>Simular</button>
+  </div>
+</div>
+
+<script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
+<script src="core.js"></script>
+<script src="app.js"></script>
+</body>
+</html>
